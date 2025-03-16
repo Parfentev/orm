@@ -1,11 +1,11 @@
 <?php
 
-namespace ORM\Annotation;
+namespace ORM\Attribute;
 
-use App\Attribute\Column;
-use App\Attribute\JoinColumn;
-use App\Entity\AbstractEntity;
-use App\Util\StringUtil;
+use ORM\Attribute\Column;
+use ORM\Attribute\JoinColumn;
+use ORM\Entity\AbstractEntity;
+use ORM\Util\StringUtil;
 use Attribute;
 use ReflectionClass;
 use ReflectionProperty;
