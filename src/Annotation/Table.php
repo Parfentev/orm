@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Attribute;
+namespace ORM\Annotation;
 
+use App\Attribute\Column;
+use App\Attribute\JoinColumn;
 use App\Entity\AbstractEntity;
 use App\Util\StringUtil;
 use Attribute;
