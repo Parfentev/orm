@@ -2,6 +2,8 @@
 
 namespace ORM\Repository;
 
+use ORM\Attribute\Table;
+use ORM\{Attribute\Column, Database, Entity\AbstractEntity, Entity\Collection, Manager, QueryBuilder};
 use ORM\Util\StringUtil;
 
 class AbstractRepository
@@ -18,8 +20,7 @@ class AbstractRepository
 
     public function __construct($entityClass)
     {
-        global $db;
-        $this->db          = $db;
+        $this->db          = Manager::getDatabase();
         $this->table       = Manager::getTable($entityClass);
         $this->entityClass = $entityClass;
 
@@ -573,8 +574,8 @@ class AbstractRepository
 
         // Получение данных из других таблиц
         foreach ($otherData as $name => $table) {
-            $data = $this->db->get_results($table['query']->getQueryString(), \App\Repository\ARRAY_A);
-            $data && $otherData[$name]['data'] = array_column($data, null, $table['ref_column_name']);
+           // $data = $this->db->get_results($table['query']->getQueryString(), ARRAY_A);
+           // $data && $otherData[$name]['data'] = array_column($data, null, $table['ref_column_name']);
         }
 
         //RequestManager::stopTimer();

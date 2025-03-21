@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Entity;
+namespace ORM\Entity;
 
-use App\Attribute\Entity;
 use App\Exception\NotFoundException;
-use App\Manager;
 use ArrayAccess;
 use ArrayIterator;
 use Countable;
 use IteratorAggregate;
+use ORM\Attribute\Entity;
+use ORM\Manager;
 use ReflectionAttribute;
 
 class Collection implements Countable, IteratorAggregate, ArrayAccess

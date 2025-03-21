@@ -1,33 +1,23 @@
 <?php
 
-namespace App\Attribute;
+namespace ORM\Attribute;
 
 use Attribute;
-use RB\TableProviders\Entity\AbstractEntity;
+use ORM\Entity\AbstractEntity;
 use ReflectionProperty;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class JoinColumn
 {
-    public string  $name;
-    public string  $targetTable;
-    public string  $targetColumn;
-    public string  $refTargetColumn;
-    public ?string $refColumn;
-
     private ReflectionProperty $propertyReflection;
 
     public function __construct(
-        string $targetTable,
-        string $targetColumn,
-        string $refTargetColumn,
-        string $refColumn = null
-    ) {
-        $this->targetTable     = $targetTable;
-        $this->targetColumn    = $targetColumn;
-        $this->refTargetColumn = $refTargetColumn;
-        $this->refColumn       = $refColumn;
-    }
+        public string $name,
+        public string $targetTable,
+        public string $targetColumn,
+        public string $refTargetColumn,
+        public ?string $refColumn = null
+    ) {}
 
     /**
      * Запоминает класс рефлексии
@@ -44,7 +34,7 @@ class JoinColumn
         return $this->name;
     }
 
-    public function setName(string $value)
+    public function setName(string $value): void
     {
         $this->name = $value;
     }
@@ -57,9 +47,7 @@ class JoinColumn
      */
     public function setValue(AbstractEntity $entity, $value): void
     {
-        $this->propertyReflection->setAccessible(true);
         isset($value) && $this->propertyReflection->setValue($entity, $value);
-        $this->propertyReflection->setAccessible(false);
     }
 
     public function getTargetTable(): string

@@ -3,41 +3,19 @@
 namespace ORM;
 
 use Doctrine\DBAL\{Connection, DriverManager, Exception, Statement};
-use PDO;
 
 class Database
 {
     private Connection $db;
     private Statement  $query;
-
-    public string  $lastError = '';
+    public string $lastError = '';
 
     /**
      * @throws Exception
      */
-    public function __construct()
+    public function __construct(array $params)
     {
-        $db       = getenv('MYSQL_DB');
-        $user     = getenv('MYSQL_USER');
-        $password = getenv('MYSQL_PASSWORD');
-
-        $this->db = DriverManager::getConnection([
-            //'url' => "postgresql://$user:$password@database:5432/$db?serverVersion=11&charset=utf8",
-            //'driver' => "pdo_mysql",
-            //'url'    => "mysql://money:w33FaQpL&e*h@brepinorof.beget.app:3306/money",
-            //'url' => "mysql://$user:$password@brepinorof.beget.app:3306/$db?charset=utf8",
-            'dbname' => 'money',
-            'user' => 'money',
-            'password' => 'w33FaQpL&e*h',
-            'host' => 'brepinorof.beget.app',
-            'port' => 3306,
-            'charset' => 'utf8mb4',
-            'driver' => 'pdo_mysql',
-            'driverOptions' => [
-                PDO::ATTR_TIMEOUT => 0.1,
-                PDO::ATTR_PERSISTENT => true// Таймаут подключения 3 секунды
-            ]
-        ]);
+        $this->db = DriverManager::getConnection($params);
     }
 
     /**

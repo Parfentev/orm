@@ -2,9 +2,9 @@
 
 namespace ORM\Attribute;
 
-use App\Entity\AbstractEntity;
 use Attribute;
 use DateTime;
+use ORM\Entity\AbstractEntity;
 use ReflectionProperty;
 
 #[Attribute(Attribute::TARGET_PROPERTY)]
@@ -107,7 +107,7 @@ final class Column
     {
         $type = $this->type;
 
-        $isUnsigned = strpos($type, 'unsigned') !== false;
+        $isUnsigned = str_contains($type, 'unsigned');
         $isUnsigned && $type = trim(str_replace('unsigned', "", $type));
 
         switch ($type) {

@@ -11,7 +11,6 @@ use DateTime;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
-use ReflectionNamedType;
 use ReflectionProperty;
 
 class AbstractEntity
