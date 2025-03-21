@@ -2,16 +2,19 @@
 
 namespace ORM\Repository;
 
-use ORM\Attribute\Table;
-use ORM\{Attribute\Column, Database, Entity\AbstractEntity, Entity\Collection, Manager, QueryBuilder};
+use ORM\{Database, Manager, QueryBuilder};
+use Exception;
+use ORM\Attribute\{Table, Column};
+use ORM\Entity\{AbstractEntity, Collection};
+use ORM\Exception\NotFoundException;
 use ORM\Util\StringUtil;
 
 class AbstractRepository
 {
-    protected Table  $table;
+    protected Table    $table;
     protected Database $db;
-    protected string $entityClass;
-    protected string $entityNameLog;
+    protected string   $entityClass;
+    protected string   $entityNameLog;
 
     private array  $columnNames = [];
     private string $alias;
@@ -28,16 +31,15 @@ class AbstractRepository
         $this->entityNameLog = StringUtil::toSnakeCase($this->entityNameLog);
     }
 
-    // Поиск
+    // Search
 
     /**
      * Находит запись по первичному ключу
      *
-     * @param int $id
+     * @param int|string $primaryValue
      * @param bool $cache
      *
      * @return AbstractEntity
-     * @throws NotFoundException
      */
     public function find(int|string $primaryValue, bool $cache = true): AbstractEntity
     {
@@ -83,16 +85,16 @@ class AbstractRepository
      */
     public function findAll(array $criteria = [], ?array $orderBy = null, ?int $limit = null, ?int $offset = null, bool $withTotal = false): Collection
     {
-        $query = $this->getQueryBuilder($criteria);
-        $query->removeGroupBy(); // Костыль, нужно перевести все места findAll на этом метод
+        $query      = $this->getQueryBuilder($criteria);
         $totalQuery = $withTotal ? clone $query : null;
+
         $this->applySorts($query, $orderBy ?? [], $criteria);
         is_numeric($limit) && $limit > 0 && $query->setLimit($limit, $offset ?? 0);
 
         return $this->prepareCollection($this->query($query), $totalQuery);
     }
 
-    // Изменение
+    // Change
 
     /**
      * Создает новый ряд в таблице
@@ -119,24 +121,19 @@ class AbstractRepository
             isset($value) && $data[$name] = $value;
         }
 
-        //getenv('RB_ENV') !== 'live' && \RB\Logger::debug('props_test db_insert ' . get_class($entity), $data, true);
-
         $result = $this->db->insert($this->table->getName(), $data);
         if ($result === false) {
-            //Logger::error('props_error entity_create ' . get_class($entity), $this->db->last_error, true);
             return false;
         }
 
-        $lastId = $this->db->lastInsertId();
         // Получаем id созданной записи
-        if ($lastId) {
+        if ($lastId = $this->db->lastInsertId()) {
             $primarySetter = 'set'. ucfirst($this->table->getPrimaryKey());
             $entity->{$primarySetter}($lastId);
         }
 
         $this->table->flushValue($entity);
 
-        //do_action('rb/props/create', $entity);
         return true;
     }
 
@@ -171,21 +168,15 @@ class AbstractRepository
         }
 
         if (!$data) {
-            //Logger::error('props_error entity_update no_data ' . get_class($entity), [
-            //    'modify' => $entity->getModifiedColumns()
-            //], true);
             return true;
         }
 
         if (!$where) {
-            //Logger::error('props_error entity_update no_where ' . get_class($entity), 'Не указан первичный ключ', true);
             return false;
         }
 
-        //getenv('RB_ENV') !== 'live' && \RB\Logger::debug('props_test db_update ' . get_class($entity), $data, true);
         $result = $this->db->update($this->table->getName(), $data, $where);
         if ($result === false) {
-            //Logger::error('props_error entity_update ' . get_class($entity), $this->db->last_error, true);
             return false;
         }
 
@@ -250,7 +241,7 @@ class AbstractRepository
         return $entity;
     }
 
-    // Другое
+    // Other
 
     /**
      * Получает конструктор sql запроса
@@ -335,7 +326,7 @@ class AbstractRepository
             ->fetchAll();
 
         if (!$data && $this->db->lastError) {
-            //Logger::alert('props_error query', $this->db->last_error, true);
+            //ошибка
         }
 
         //RequestManager::stopTimer();
@@ -349,7 +340,9 @@ class AbstractRepository
         $args  = $query->getArguments();
         $query = $query->getQueryString();
 
-        $item = $this->db->prepare($query, $args)->fetch();
+        $item = $this->db
+            ->prepare($query, $args)
+            ->fetchAssociative();
 
         //RequestManager::stopTimer();
         return $item ?: null;
@@ -371,7 +364,9 @@ class AbstractRepository
         $args  = $query->getArguments();
         $query = $query->getQueryString();
 
-        $total = $this->db->get_var($args ? $this->db->prepare($query, $args) : $query) ?: 0;
+        $total = $this->db
+            ->prepare($query, $args)
+            ->fetchOne();
 
         //RequestManager::stopTimer();
         return $total;
@@ -384,7 +379,7 @@ class AbstractRepository
      */
     final public function getLastError(): string
     {
-        return $this->db->last_error;
+        return $this->db->lastError;
     }
 
     /**

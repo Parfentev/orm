@@ -8,7 +8,7 @@ class Database
 {
     private Connection $db;
     private Statement  $query;
-    public string $lastError = '';
+    public string      $lastError = '';
 
     /**
      * @throws Exception
@@ -52,19 +52,64 @@ class Database
             ->fetchAllAssociative();
     }
 
-    public function insert(string $table, array $data): int
+    /**
+     * @throws Exception
+     */
+    public function fetchAssociative(): array
     {
-        return $this->db->insert($table, $data);
+        return $this->query
+            ->executeQuery()
+            ->fetchAssociative();
     }
 
-    public function update(string $table, array $data, array $criteria): int
+    /**
+     * @throws Exception
+     */
+    public function fetchFirstColumn(): array
     {
-        return $this->db->update($table, $data, $criteria);
+        return $this->query
+            ->executeQuery()
+            ->fetchFirstColumn();
     }
 
-    public function delete(string $table, array $criteria): int
+    /**
+     * @throws Exception
+     */
+    public function fetchOne(): int|string|false
     {
-        return $this->db->delete($table, $criteria);
+        return $this->query
+            ->executeQuery()
+            ->fetchOne();
+    }
+
+    public function insert(string $table, array $data): int|false
+    {
+        try {
+            return $this->db->insert($table, $data);
+        } catch (Exception) {
+            //ошибка
+            return false;
+        }
+    }
+
+    public function update(string $table, array $data, array $criteria): int|false
+    {
+        try {
+            return $this->db->update($table, $data, $criteria);
+        } catch (Exception) {
+            //ошибка
+            return false;
+        }
+    }
+
+    public function delete(string $table, array $criteria): int|false
+    {
+        try {
+            return $this->db->delete($table, $criteria);
+        } catch (Exception) {
+            //ошибка
+            return false;
+        }
     }
 
     public function lastInsertId(): int|string|null

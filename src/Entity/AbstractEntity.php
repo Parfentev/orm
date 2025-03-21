@@ -2,8 +2,7 @@
 
 namespace ORM\Entity;
 
-use ORM\Attribute\Entity;
-use ORM\Attribute\Table;
+use ORM\Attribute\{Entity, Table};
 use ORM\Manager;
 use ORM\Util\StringUtil;
 use BadMethodCallException;

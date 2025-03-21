@@ -7,5 +7,5 @@ use RuntimeException;
 class NotFoundException extends RuntimeException
 {
     /** @var string */
-    protected $message = 'Данные не найдены.';
+    protected $message = 'No data found.';
 }
