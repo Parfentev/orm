@@ -2,122 +2,70 @@
 
 namespace ORM;
 
-use Doctrine\DBAL\{Connection, DriverManager, Exception, Statement};
+use ORM\Connection\{ConnectionInterface, DoctrineConnection};
 
 class Database
 {
-    private Connection $db;
-    private Statement  $query;
-    public string      $lastError = '';
+    private ConnectionInterface $db;
 
-    /**
-     * @throws Exception
-     */
-    public function __construct(array $params)
-    {
-        $this->db = DriverManager::getConnection($params);
+    public function __construct(object $connection) {
+        $this->db = $this->resolveConnection($connection);
     }
 
-    /**
-     * @throws Exception
-     */
+    private function resolveConnection(object $connection): DoctrineConnection
+    {
+        return match (true) {
+            $connection instanceof \Doctrine\DBAL\Connection => new DoctrineConnection($connection),
+            //$connection instanceof \PDO => new PdoConnection($connection),
+            //$connection instanceof \wpdb => new WordPressConnection($connection),
+            default => throw new \InvalidArgumentException('Unsupported connection type'),
+        };
+    }
+
     public function prepare(string $sql, array $args): self
     {
-        $this->query = $this->db->prepare($sql);
-
-        foreach ($args as $index => $value) {
-            $this->query->bindValue($index + 1, $value);
-        }
+        $this->db->prepare($sql, $args);
 
         return $this;
     }
 
-    /**
-     * @throws Exception
-     */
     public function fetch(): array|false
     {
-        return $this->query
-            ->executeQuery()
-            ->fetchAssociative();
+        return $this->db->fetch();
     }
 
-    /**
-     * @throws Exception
-     */
     public function fetchAll(): array
     {
-        return $this->query
-            ->executeQuery()
-            ->fetchAllAssociative();
+        return $this->db->fetchAll();
     }
 
-    /**
-     * @throws Exception
-     */
-    public function fetchAssociative(): array
-    {
-        return $this->query
-            ->executeQuery()
-            ->fetchAssociative();
-    }
-
-    /**
-     * @throws Exception
-     */
     public function fetchFirstColumn(): array
     {
-        return $this->query
-            ->executeQuery()
-            ->fetchFirstColumn();
+        return $this->db->fetchFirstColumn();
     }
 
-    /**
-     * @throws Exception
-     */
     public function fetchOne(): int|string|false
     {
-        return $this->query
-            ->executeQuery()
-            ->fetchOne();
+        return $this->db->fetchOne();
     }
 
     public function insert(string $table, array $data): int|false
     {
-        try {
-            return $this->db->insert($table, $data);
-        } catch (Exception) {
-            //ошибка
-            return false;
-        }
+        return $this->db->insert($table, $data);
     }
 
     public function update(string $table, array $data, array $criteria): int|false
     {
-        try {
-            return $this->db->update($table, $data, $criteria);
-        } catch (Exception) {
-            //ошибка
-            return false;
-        }
+        return $this->db->update($table, $data, $criteria);
     }
 
     public function delete(string $table, array $criteria): int|false
     {
-        try {
-            return $this->db->delete($table, $criteria);
-        } catch (Exception) {
-            //ошибка
-            return false;
-        }
+        return $this->db->delete($table, $criteria);
     }
 
     public function lastInsertId(): int|string|null
     {
-        try {
-            return $this->db->lastInsertId() ?? null;
-        } catch (Exception) {
-            return null;
-        }
+        return $this->db->lastInsertId();
     }
 }

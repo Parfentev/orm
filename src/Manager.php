@@ -2,7 +2,6 @@
 
 namespace ORM;
 
-use Doctrine\DBAL\Exception;
 use ORM\Attribute\{Repository, Table};
 use ORM\Repository\AbstractRepository;
 use RecursiveDirectoryIterator;
@@ -20,6 +19,11 @@ class Manager
     private static array $reflections;
     /** @var AbstractRepository[] */
     private static array $repositories;
+
+    public static function init(object $dbConnection): void
+    {
+        self::$db = new Database($dbConnection);
+    }
 
     public static function loadClasses(string $path, callable $callback)
     {
@@ -103,15 +107,7 @@ class Manager
         return self::$repositories[$class] ?? self::$repositories[$class] = new AbstractRepository($class);
     }
 
-    /**
-     * @throws Exception
-     */
-    public static function initDatabase(array $params): void
-    {
-        self::$db = new Database($params);
-    }
-
-    public static function getDatabase()
+    public static function getDatabase(): Database
     {
         return self::$db;
     }
