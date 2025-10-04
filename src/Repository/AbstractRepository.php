@@ -2,6 +2,7 @@
 
 namespace ORM\Repository;
 
+use App\Profiler;
 use ORM\{Database, Manager, QueryBuilder};
 use Exception;
 use ORM\Attribute\{Table, Column};
@@ -124,7 +125,7 @@ class AbstractRepository
         $result = $this->db->insert($this->table->getName(), $data);
         if ($result === false) {
             return false;
-        }
+        }   
 
         // Получаем id созданной записи
         if ($lastId = $this->db->lastInsertId()) {
@@ -315,8 +316,8 @@ class AbstractRepository
      */
     public function query(QueryBuilder $query): array
     {
-        //RequestManager::startTimer("props query $this->entityNameLog");
-        $this->db->lastError = '';
+        Profiler::startTimer("orm query $this->entityNameLog");
+       // $this->db->lastError = '';
 
         $args  = $query->getArguments();
         $query = $query->getQueryString();
@@ -325,32 +326,31 @@ class AbstractRepository
             ->prepare($query, $args)
             ->fetchAll();
 
-        if (!$data && $this->db->lastError) {
+       // if (!$data && $this->db->lastError) {
             //ошибка
-        }
+        //}
 
-        //RequestManager::stopTimer();
+        Profiler::stopTimer();
         return $data ?: [];
     }
 
     public function queryRow(QueryBuilder $query): ?array
     {
-        //RequestManager::startTimer("props query_row $this->entityNameLog");
-
+        Profiler::startTimer("orm query_row $this->entityNameLog");
         $args  = $query->getArguments();
         $query = $query->getQueryString();
 
         $item = $this->db
             ->prepare($query, $args)
-            ->fetchAssociative();
+            ->fetch();
 
-        //RequestManager::stopTimer();
+        Profiler::stopTimer();
         return $item ?: null;
     }
 
     public function queryTotal(QueryBuilder $query): int
     {
-        //RequestManager::startTimer("props query_total $this->entityNameLog");
+        Profiler::startTimer("orm query_total $this->entityNameLog");
         $alias      = $this->getAlias();
         $primaryKey = $this->table->getPrimaryKey();
 
@@ -368,7 +368,7 @@ class AbstractRepository
             ->prepare($query, $args)
             ->fetchOne();
 
-        //RequestManager::stopTimer();
+        Profiler::stopTimer();
         return $total;
     }
 
@@ -498,7 +498,7 @@ class AbstractRepository
         $collection = new Collection($this->entityClass);
         $otherData  = $this->getOtherData($data);
 
-        //RequestManager::startTimer("props prepare_collection $this->entityNameLog");
+        Profiler::startTimer("orm prepare_collection $this->entityNameLog");
         foreach ($data as $item) {
             foreach ($otherData as $table) { // Добавляем данные из других таблиц
                 $refColumnValue = $item[$table['ref_column_name']];
@@ -513,7 +513,7 @@ class AbstractRepository
             }
         }
 
-        //RequestManager::stopTimer();
+        Profiler::stopTimer();
         $totalQuery && $collection->setTotal($this->queryTotal($totalQuery));
         return $collection;
     }
@@ -522,7 +522,7 @@ class AbstractRepository
     {
         $otherData = $this->getOtherData([$item]);
 
-        //RequestManager::startTimer("props prepare_item $this->entityNameLog");
+        Profiler::startTimer("orm prepare_item $this->entityNameLog");
         foreach ($otherData as $table) { // Добавляем данные из других таблиц
             $refColumnValue = $item[$table['ref_column_name']];
             isset($table['data'][$refColumnValue]) && $item = array_merge($item, $table['data'][$refColumnValue]);
@@ -530,7 +530,7 @@ class AbstractRepository
 
         $entity = $this->table->newEntityInstance($item);
 
-        //RequestManager::stopTimer();
+        Profiler::stopTimer();
 
         return $entity;
     }
@@ -541,7 +541,7 @@ class AbstractRepository
             return [];
         }
 
-        //RequestManager::startTimer("props get_other_data $this->entityNameLog");
+        Profiler::startTimer("orm get_other_data $this->entityNameLog");
         $otherData  = [];
         $primaryKey = $this->table->getPrimaryKey();
 
@@ -573,7 +573,7 @@ class AbstractRepository
            // $data && $otherData[$name]['data'] = array_column($data, null, $table['ref_column_name']);
         }
 
-        //RequestManager::stopTimer();
+        Profiler::stopTimer();
         return $otherData;
     }
 }

@@ -358,7 +358,7 @@ class QueryBuilder
         }
 
         if ($this->select) {
-            $query['select'] = "SELECT\r\n    " . implode(",\r\n    ", $this->select);
+            $query['select'] = "SELECT " . implode(", ", $this->select);
         }
 
         if ($this->update) {
@@ -370,7 +370,7 @@ class QueryBuilder
         }
 
         if ($this->join) {
-            $query['join'] = implode("\r\n", $this->join);
+            $query['join'] = implode(" ", $this->join);
         }
 
         if ($this->set) {
@@ -378,7 +378,7 @@ class QueryBuilder
         }
 
         if ($this->where) {
-            $query['where'] = "WHERE\r\n    " . implode("\r\n    ", $this->where);
+            $query['where'] = "WHERE " . implode(" ", $this->where);
         }
 
         if ($this->groupBy) {
@@ -386,7 +386,7 @@ class QueryBuilder
         }
 
         if ($this->having) {
-            $query['having'] = "HAVING\r\n    " . implode("\r\n    ", $this->having);
+            $query['having'] = "HAVING " . implode(" ", $this->having);
         }
 
         if ($this->orderBy) {
@@ -398,7 +398,7 @@ class QueryBuilder
         }
 
         $query = array_filter($query);
-        $query = implode("\r\n", $query);
+        $query = implode(" ", $query);
 
         return trim($query);
     }

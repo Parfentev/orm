@@ -2,11 +2,12 @@
 
 namespace ORM\Entity;
 
+use BadMethodCallException;
+use DateTime;
+use DateTimeImmutable;
 use ORM\Attribute\{Entity, Table};
 use ORM\Manager;
 use ORM\Util\StringUtil;
-use BadMethodCallException;
-use DateTime;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionException;
@@ -122,7 +123,7 @@ class AbstractEntity
         $type = $property->getType();
 
         // Тип DateTime
-        if ($type && $type->getName() === 'DateTime') {
+        if ($type && in_array($type->getName(), ['DateTime', 'DateTimeImmutable'])) {
             $value = $this->{$columnName};
             if ($type->allowsNull() && !$value) {
                 return null;
@@ -163,14 +164,15 @@ class AbstractEntity
         $typeName = $type->getName();
 
         // Тип DateTime
-        if ($typeName === 'DateTime') {
+        if (in_array($typeName, ['DateTime', 'DateTimeImmutable'])) {
             if ($type->allowsNull() && !$value) {
                 $this->{$column} = null;
                 return $this;
             }
 
             !$value && $value = time();
-            $this->{$column} = DateTime::createFromFormat($params[1] ?? 'U', $value);
+            /** @var DateTime|DateTimeImmutable $typeName*/
+            $this->{$column} = $typeName::createFromFormat($params[1] ?? 'U', $value);
             return $this;
         }
 

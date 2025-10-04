@@ -3,7 +3,7 @@
 namespace ORM\Attribute;
 
 use Attribute;
-use DateTime;
+use DateTimeInterface;
 use ORM\Entity\AbstractEntity;
 use ReflectionProperty;
 
@@ -203,7 +203,7 @@ final class Column
         }
 
         // Тип колонки и значения datetime
-        if ($this->getType() === 'datetime' && $value instanceof DateTime) {
+        if ($this->getType() === 'datetime' && $value instanceof DateTimeInterface) {
             $value = $value->format('Y-m-d H:i:s');
         }
 
@@ -218,11 +218,13 @@ final class Column
      */
     public function setValue(AbstractEntity $entity, $value): void
     {
-        $type = $this->propertyReflection->getType();
+        $type     = $this->propertyReflection->getType();
+        $typeName = $type->getName();
 
         // Тип колонки datetime
-        if ($type && $type->getName() === 'DateTime' && $this->getType() === 'datetime') {
-            $value = DateTime::createFromFormat('Y-m-d H:i:s', $value);
+        if (in_array($typeName, ['DateTime', 'DateTimeImmutable']) && $this->getType() === 'datetime') {
+            /** @var DateTimeInterface $typeName*/
+            $value = $typeName::createFromFormat('Y-m-d H:i:s', $value);
             if (!$value) {
                 return;
             }

@@ -48,6 +48,7 @@ final class Table
                 !$column->getType() && $column->setType($type);
                 break;
             case 'DateTime':
+            case 'DateTimeImmutable':
                 $column->setType('datetime');
                 break;
             default:

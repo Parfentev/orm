@@ -2,6 +2,7 @@
 
 namespace ORM\Connection;
 
+use App\Profiler;
 use Doctrine\DBAL\{Connection, Exception, Statement};
 
 class DoctrineConnection implements ConnectionInterface
@@ -12,12 +13,15 @@ class DoctrineConnection implements ConnectionInterface
 
     public function __construct(Connection $connection)
     {
+        Profiler::startTimer('db doctrine');
         $this->connection = $connection;
+        $this->connection->getNativeConnection();
+        Profiler::stopTimer();
     }
 
     public function prepare(string $sql, array $args): self
     {
-        $this->query = $this->connection->prepare($sql);
+        $this->query     = $this->connection->prepare($sql);
 
         foreach ($args as $index => $value) {
             $this->query->bindValue($index + 1, $value);

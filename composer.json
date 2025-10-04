@@ -2,10 +2,6 @@
     "name": "parfentev/orm",
     "license": "MIT",
     "description": "",
-    "require": {},
-    "require-dev": {
-        "doctrine/dbal": "*"
-    },
     "autoload": {
         "psr-4": {
             "ORM\\": "src/"
