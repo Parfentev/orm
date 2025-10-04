@@ -2,8 +2,6 @@
 
 namespace ORM\Attribute;
 
-use ORM\Attribute\Column;
-use ORM\Attribute\JoinColumn;
 use ORM\Entity\AbstractEntity;
 use ORM\Util\StringUtil;
 use Attribute;
@@ -153,7 +151,9 @@ final class Table
     public function newEntityInstance($data): AbstractEntity
     {
         if (!isset($this->entityTemplate)) {
-            $this->entityTemplate = $this->entityReflection->newInstance();
+            /** @var AbstractEntity $template */
+            $template = $this->entityReflection->newInstance();
+            $this->entityTemplate = $template;
         }
 
         $entity = clone $this->entityTemplate;
