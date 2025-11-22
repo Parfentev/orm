@@ -40,7 +40,7 @@ class QueryBuilder
         if ($alias && in_array($alias, $this->columnAliases)) {
             return $this;
         }
-        $field                 = $alias ? sprintf('%s AS "%s"', $field, $alias) : $field;
+        $field                 = $alias ? sprintf("%s AS '%s'", $field, $alias) : $field;
         $this->select[]        = $field;
         $alias && $this->columnAliases[] = $alias;
 
@@ -358,7 +358,7 @@ class QueryBuilder
         }
 
         if ($this->select) {
-            $query['select'] = "SELECT " . implode(", ", $this->select);
+            $query['select'] = 'SELECT ' . implode(', ', $this->select);
         }
 
         if ($this->update) {
@@ -370,7 +370,7 @@ class QueryBuilder
         }
 
         if ($this->join) {
-            $query['join'] = implode(" ", $this->join);
+            $query['join'] = implode(' ', $this->join);
         }
 
         if ($this->set) {
@@ -378,7 +378,7 @@ class QueryBuilder
         }
 
         if ($this->where) {
-            $query['where'] = "WHERE " . implode(" ", $this->where);
+            $query['where'] = 'WHERE ' . implode(' ', $this->where);
         }
 
         if ($this->groupBy) {
@@ -386,7 +386,7 @@ class QueryBuilder
         }
 
         if ($this->having) {
-            $query['having'] = "HAVING " . implode(" ", $this->having);
+            $query['having'] = 'HAVING ' . implode(' ', $this->having);
         }
 
         if ($this->orderBy) {
@@ -398,7 +398,7 @@ class QueryBuilder
         }
 
         $query = array_filter($query);
-        $query = implode(" ", $query);
+        $query = implode(' ', $query);
 
         return trim($query);
     }

@@ -256,13 +256,11 @@ class AbstractRepository
      */
     public function getQueryBuilder(array $criteria = []): QueryBuilder
     {
-        $alias      = $this->getAlias();
-        $primaryKey = $this->table->getPrimaryKey();
+        $alias = $this->getAlias();
 
         $query = (new QueryBuilder())
             ->addSelect("$alias.*")
-            ->addFrom($this->table->getName(), $alias)
-            ->addGroupBy("$alias.$primaryKey");
+            ->addFrom($this->table->getName(), $alias);
 
         $this->applyFilter($query, $criteria);
 
