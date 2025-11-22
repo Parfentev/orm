@@ -22,14 +22,17 @@ class AbstractRepository
     /** @var array Локальное кэширование сущностей */
     private array $entities = [];
 
-    public function __construct($entityClass)
+    public function __construct(?string $entityClass = null)
     {
-        $this->db          = Manager::getDatabase();
-        $this->table       = Manager::getTable($entityClass);
-        $this->entityClass = $entityClass;
+        $entityClass && $this->entityClass = $entityClass;
+        if (isset($this->entityClass)) {
+            $this->db = Manager::getDatabase();
+            $table    = Manager::getTable($this->entityClass);
+            $table && $this->table = $table;
 
-        $this->entityNameLog = substr($entityClass, strrpos($entityClass, '\\') + 1);
-        $this->entityNameLog = StringUtil::toSnakeCase($this->entityNameLog);
+            $this->entityNameLog = substr($this->entityClass, strrpos($this->entityClass, '\\') + 1);
+            $this->entityNameLog = StringUtil::toSnakeCase($this->entityNameLog);
+        }
     }
 
     // Search
