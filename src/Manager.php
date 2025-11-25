@@ -92,7 +92,7 @@ class Manager
     public static function getRepository(string $class): AbstractRepository
     {
         if (empty(self::$repositories)) {
-            self::$repositories = self::loadClasses(__DIR__ . '/Repository', function (array $collection, ReflectionClass $reflection) {
+            self::$repositories = self::loadClasses(APP_PATH . '/Repository', function (array $collection, ReflectionClass $reflection) {
                 $attributes = $reflection->getAttributes(Repository::class);
                 if ($attributes) {
                     $attribute          = reset($attributes);
