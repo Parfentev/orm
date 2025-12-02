@@ -31,6 +31,20 @@ class Collection implements Countable, IteratorAggregate, ArrayAccess
         return $this->total;
     }
 
+    /**
+     * Применяет пользовательскую функцию к каждому члену коллекции
+     *
+     * @param callable $callback
+     *
+     * @return self
+     * @see array_walk
+     */
+    public function walk(callable $callback): self
+    {
+        array_walk($this->collection, $callback);
+        return $this;
+    }
+
     public function map(callable $callback): array
     {
         return array_filter(array_map($callback, $this->collection));
