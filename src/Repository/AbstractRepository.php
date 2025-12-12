@@ -61,13 +61,17 @@ class AbstractRepository
      * Находит запись по указанным критериям
      *
      * @param array $criteria
+     * @param ?array $orderBy
      *
      * @return AbstractEntity
      * @throws NotFoundException
      */
-    public function findOneBy(array $criteria = []): AbstractEntity
+    public function findOneBy(array $criteria = [], ?array $orderBy = null): AbstractEntity
     {
-        $item = $this->queryRow($this->getQueryBuilder($criteria));
+        $query = $this->getQueryBuilder($criteria);
+        $this->applySorts($query, $orderBy ?? [], $criteria);
+
+        $item = $this->queryRow($query);
         if (!$item) {
             throw new NotFoundException();
         }
